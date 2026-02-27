@@ -28,11 +28,11 @@ fun NavGraph() {
             })
         }
         composable(ScreenRoutes.Category) {
-            var selectedCategory by remember { mutableStateOf<String?>(null) }
             CategoryScreen(
-                selectedCategory = selectedCategory,
-                onCategorySelected = { selectedCategory = it },
-                onContinueClicked = { navController.navigate(ScreenRoutes.Login) }
+                onCategorySelected = { category ->
+                    // You can save the category here if needed (e.g., in a ViewModel)
+                    navController.navigate(ScreenRoutes.Login)
+                }
             )
         }
         composable(ScreenRoutes.Login) {
