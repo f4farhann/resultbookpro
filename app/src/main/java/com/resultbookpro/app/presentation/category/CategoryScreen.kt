@@ -47,7 +47,12 @@ fun CategoryScreen(
             )
             Spacer(modifier = Modifier.height(32.dp))
 
-            val categories = listOf("School (1–10)", "Higher Secondary (11–12)", "College / University")
+            val categories = listOf(
+                "Nursery/KG",
+                "School (1–10)",
+                "Higher Secondary (11–12)",
+                "College / University"
+            )
 
             categories.forEach { category ->
                 CategoryCard(

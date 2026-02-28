@@ -13,24 +13,16 @@ import com.resultbookpro.app.presentation.auth.register.RegisterScreen
 import com.resultbookpro.app.presentation.category.CategoryScreen
 import com.resultbookpro.app.presentation.home.HomeScreen
 import com.resultbookpro.app.presentation.profile.SetupProfileScreen
-import com.resultbookpro.app.presentation.splash.SplashScreen
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = ScreenRoutes.Splash) {
-        composable(ScreenRoutes.Splash) {
-            SplashScreen(onTimeout = { 
-                navController.navigate(ScreenRoutes.Category) {
-                    popUpTo(ScreenRoutes.Splash) { inclusive = true }
-                }
-            })
-        }
+    // Start directly at Category screen to avoid double splash
+    NavHost(navController = navController, startDestination = ScreenRoutes.Category) {
         composable(ScreenRoutes.Category) {
             CategoryScreen(
                 onCategorySelected = { category ->
-                    // You can save the category here if needed (e.g., in a ViewModel)
                     navController.navigate(ScreenRoutes.Login)
                 }
             )
