@@ -15,6 +15,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,11 +30,16 @@ import androidx.compose.ui.unit.sp
 import com.resultbookpro.app.presentation.common.theme.PrimaryBlue
 import com.resultbookpro.app.presentation.common.theme.ResultBookProTheme
 import com.resultbookpro.app.presentation.common.theme.White
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun CategoryScreen(
     onCategorySelected: (String) -> Unit
 ) {
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
     Scaffold {
         paddingValues ->
         Column(
@@ -57,8 +67,16 @@ fun CategoryScreen(
             categories.forEach { category ->
                 CategoryCard(
                     text = category,
-                    isSelected = false,
-                    onClick = { onCategorySelected(category) }
+                    isSelected = selectedCategory == category,
+                    onClick = {
+                        if (selectedCategory == null) {
+                            selectedCategory = category
+                            scope.launch {
+                                delay(300) // Brief delay to show the blue selection state
+                                onCategorySelected(category)
+                            }
+                        }
+                    }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
