@@ -3,18 +3,21 @@ package com.resultbookpro.app.presentation.navigation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.resultbookpro.app.presentation.auth.login.LoginScreen
+import com.resultbookpro.app.presentation.auth.login.LoginViewModel
 import com.resultbookpro.app.presentation.auth.register.RegisterScreen
+import com.resultbookpro.app.presentation.auth.register.RegisterViewModel
 import com.resultbookpro.app.presentation.category.CategoryScreen
 import com.resultbookpro.app.presentation.home.HomeScreen
+import com.resultbookpro.app.presentation.profile.EditProfileScreen
 import com.resultbookpro.app.presentation.profile.SetupProfileScreen
+import com.resultbookpro.app.presentation.profile.SetupProfileViewModel
 
 @Composable
 fun NavGraph() {
@@ -50,52 +53,58 @@ fun NavGraph() {
     ) {
         composable(ScreenRoutes.Category) {
             CategoryScreen(
-                onCategorySelected = { category ->
+                onCategorySelected = { _ ->
                     navController.navigate(ScreenRoutes.Login)
                 }
             )
         }
         composable(ScreenRoutes.Login) {
-            var email by remember { mutableStateOf("") }
-            var password by remember { mutableStateOf("") }
+            val viewModel: LoginViewModel = viewModel()
+            val emailState by viewModel.emailState.collectAsState()
+            val passwordState by viewModel.passwordState.collectAsState()
+
             LoginScreen(
-                emailState = email,
-                passwordState = password,
-                onEmailChange = { email = it },
-                onPasswordChange = { password = it },
-                onLoginClick = { _, _ -> 
+                onLoginClick = { _, _ ->
                     navController.navigate(ScreenRoutes.Home) {
                         popUpTo(navController.graph.startDestinationId) { inclusive = true }
                     }
                  },
-                onRegisterClick = { navController.navigate(ScreenRoutes.Register) }
+                onRegisterClick = { navController.navigate(ScreenRoutes.Register) },
+                emailState = emailState,
+                passwordState = passwordState,
+                onEmailChange = viewModel::onEmailChange,
+                onPasswordChange = viewModel::onPasswordChange
             )
         }
         composable(ScreenRoutes.Register) {
-            var name by remember { mutableStateOf("") }
-            var email by remember { mutableStateOf("") }
-            var password by remember { mutableStateOf("") }
+            val viewModel: RegisterViewModel = viewModel()
+            val nameState by viewModel.nameState.collectAsState()
+            val emailState by viewModel.emailState.collectAsState()
+            val passwordState by viewModel.passwordState.collectAsState()
+
             RegisterScreen(
-                nameState = name,
-                emailState = email,
-                passwordState = password,
-                onNameChange = { name = it },
-                onEmailChange = { email = it },
-                onPasswordChange = { password = it },
-                onRegisterClick = { _, _, _ -> navController.navigate(ScreenRoutes.SetupProfile) }
+                onRegisterClick = { _, _, _ -> navController.navigate(ScreenRoutes.SetupProfile) },
+                nameState = nameState,
+                emailState = emailState,
+                passwordState = passwordState,
+                onNameChange = viewModel::onNameChange,
+                onEmailChange = viewModel::onEmailChange,
+                onPasswordChange = viewModel::onPasswordChange
             )
         }
         composable(ScreenRoutes.SetupProfile) {
-            var name by remember { mutableStateOf("") }
-            var school by remember { mutableStateOf("") }
-            var className by remember { mutableStateOf("") }
+            val viewModel: SetupProfileViewModel = viewModel()
+            val fullNameState by viewModel.fullNameState.collectAsState()
+            val schoolNameState by viewModel.schoolNameState.collectAsState()
+            val classNameState by viewModel.classNameState.collectAsState()
+
             SetupProfileScreen(
-                fullNameState = name,
-                schoolNameState = school,
-                classNameState = className,
-                onFullNameChange = { name = it },
-                onSchoolNameChange = { school = it },
-                onClassNameChange = { className = it },
+                fullNameState = fullNameState,
+                schoolNameState = schoolNameState,
+                classNameState = classNameState,
+                onFullNameChange = viewModel::onFullNameChange,
+                onSchoolNameChange = viewModel::onSchoolNameChange,
+                onClassNameChange = viewModel::onClassNameChange,
                 onSaveClicked = { _, _, _ -> 
                     navController.navigate(ScreenRoutes.Home) {
                         popUpTo(navController.graph.startDestinationId) { inclusive = true }
@@ -104,7 +113,20 @@ fun NavGraph() {
             )
         }
         composable(ScreenRoutes.Home) {
-            HomeScreen()
+            HomeScreen(
+                onEditProfile = { navController.navigate(ScreenRoutes.EditProfile) },
+                onLogout = {
+                    navController.navigate(ScreenRoutes.Login) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(ScreenRoutes.EditProfile) {
+            EditProfileScreen(
+                onBack = { navController.popBackStack() },
+                onUpdate = { navController.popBackStack() }
+            )
         }
     }
 }

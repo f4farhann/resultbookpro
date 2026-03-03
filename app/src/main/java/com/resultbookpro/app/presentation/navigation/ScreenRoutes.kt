@@ -7,4 +7,5 @@ object ScreenRoutes {
     const val Register = "register"
     const val SetupProfile = "setup_profile"
     const val Home = "home"
+    const val EditProfile = "edit_profile"
 }

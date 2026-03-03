@@ -44,11 +44,14 @@ sealed class Screen(val route: String, val icon: ImageVector, val title: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onEditProfile: () -> Unit,
+    onLogout: () -> Unit
+) {
     val navController = rememberNavController()
     val items = listOf(Screen.Upcoming, Screen.Analytics, Screen.Marks, Screen.Profile)
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
+    val navBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry.value?.destination
     val currentRoute = currentDestination?.route
 
     val topBarTitle = if (currentRoute == Screen.Profile.route) "My Account" else "ResultBookPro"
@@ -115,7 +118,7 @@ fun HomeScreen() {
             composable(Screen.Upcoming.route) { UpcomingScreen(onAddReminderClicked = {}) }
             composable(Screen.Analytics.route) { AnalyticsScreen() }
             composable(Screen.Marks.route) { MarksListScreen(onAddMark = {}, onMarkSwiped = {}) }
-            composable(Screen.Profile.route) { ProfileScreen(onEditProfile = {}, onLogout = {}) }
+            composable(Screen.Profile.route) { ProfileScreen(onEditProfile = onEditProfile, onLogout = onLogout) }
         }
     }
 }
@@ -124,6 +127,6 @@ fun HomeScreen() {
 @Composable
 fun HomeScreenPreview() {
     ResultBookProTheme {
-        HomeScreen()
+        HomeScreen(onEditProfile = {}, onLogout = {})
     }
 }
