@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -29,23 +28,23 @@ import com.resultbookpro.app.presentation.common.theme.PrimaryBlue
 import com.resultbookpro.app.presentation.common.theme.ResultBookProTheme
 import com.resultbookpro.app.presentation.common.theme.White
 
-sealed class Screen(val route: String, val title: String) {
+sealed class ScreenIcon(val route: String, val title: String) {
     @Composable
     abstract fun icon(): Painter
 
-    object Upcoming : Screen("upcoming", "Upcoming") {
+    object Upcoming : ScreenIcon("upcoming", "Upcoming") {
         @Composable
         override fun icon() = rememberVectorPainter(Icons.Default.DateRange)
     }
-    object Analytics : Screen("analytics", "Analytics") {
+    object Analytics : ScreenIcon("analytics", "Analytics") {
         @Composable
         override fun icon() = painterResource(id = R.drawable.outline_finance_25)
     }
-    object Marks : Screen("marks", "Marks") {
+    object Marks : ScreenIcon("marks", "Marks") {
         @Composable
         override fun icon() = rememberVectorPainter(Icons.AutoMirrored.Filled.List)
     }
-    object Profile : Screen("profile", "Profile") {
+    object Profile : ScreenIcon("profile", "Profile") {
         @Composable
         override fun icon() = rememberVectorPainter(Icons.Default.Person)
     }
@@ -58,12 +57,12 @@ fun HomeScreen(
     onLogout: () -> Unit
 ) {
     val navController = rememberNavController()
-    val items = listOf(Screen.Upcoming, Screen.Analytics, Screen.Marks, Screen.Profile)
+    val items = listOf(ScreenIcon.Upcoming, ScreenIcon.Analytics, ScreenIcon.Marks, ScreenIcon.Profile)
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry.value?.destination
     val currentRoute = currentDestination?.route
 
-    val topBarTitle = if (currentRoute == Screen.Profile.route) "My Account" else "ResultBookPro"
+    val topBarTitle = if (currentRoute == ScreenIcon.Profile.route) "My Account" else "ResultBookPro"
 
     Scaffold(
         topBar = {
@@ -121,13 +120,13 @@ fun HomeScreen(
     ) { innerPadding ->
         NavHost(
             navController,
-            startDestination = Screen.Upcoming.route,
+            startDestination = ScreenIcon.Upcoming.route,
             Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Upcoming.route) { UpcomingScreen(onAddReminderClicked = {}) }
-            composable(Screen.Analytics.route) { AnalyticsScreen() }
-            composable(Screen.Marks.route) { MarksListScreen(onAddMark = {}, onMarkSwiped = {}) }
-            composable(Screen.Profile.route) { ProfileScreen(onEditProfile = onEditProfile, onLogout = onLogout) }
+            composable(ScreenIcon.Upcoming.route) { UpcomingScreen(onAddReminderClicked = {}) }
+            composable(ScreenIcon.Analytics.route) { AnalyticsScreen() }
+            composable(ScreenIcon.Marks.route) { MarksListScreen(onAddMark = {}, onMarkSwiped = {}) }
+            composable(ScreenIcon.Profile.route) { ProfileScreen(onEditProfile = onEditProfile, onLogout = onLogout) }
         }
     }
 }
