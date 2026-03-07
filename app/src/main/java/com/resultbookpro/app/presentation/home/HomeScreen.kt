@@ -2,23 +2,16 @@ package com.resultbookpro.app.presentation.home
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -27,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.resultbookpro.app.R
 import com.resultbookpro.app.presentation.analytics.AnalyticsScreen
 import com.resultbookpro.app.presentation.marks.list.MarksListScreen
 import com.resultbookpro.app.presentation.profile.ProfileScreen
@@ -35,11 +29,26 @@ import com.resultbookpro.app.presentation.common.theme.PrimaryBlue
 import com.resultbookpro.app.presentation.common.theme.ResultBookProTheme
 import com.resultbookpro.app.presentation.common.theme.White
 
-sealed class Screen(val route: String, val icon: ImageVector, val title: String) {
-    object Upcoming : Screen("upcoming", Icons.Filled.DateRange, "Upcoming")
-    object Analytics : Screen("analytics", Icons.Filled.DateRange, "Analytics")
-    object Marks : Screen("marks", Icons.Filled.List, "Marks")
-    object Profile : Screen("profile", Icons.Filled.Person, "Profile")
+sealed class Screen(val route: String, val title: String) {
+    @Composable
+    abstract fun icon(): Painter
+
+    object Upcoming : Screen("upcoming", "Upcoming") {
+        @Composable
+        override fun icon() = rememberVectorPainter(Icons.Default.DateRange)
+    }
+    object Analytics : Screen("analytics", "Analytics") {
+        @Composable
+        override fun icon() = painterResource(id = R.drawable.outline_finance_25)
+    }
+    object Marks : Screen("marks", "Marks") {
+        @Composable
+        override fun icon() = rememberVectorPainter(Icons.AutoMirrored.Filled.List)
+    }
+    object Profile : Screen("profile", "Profile") {
+        @Composable
+        override fun icon() = rememberVectorPainter(Icons.Default.Person)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,7 +92,7 @@ fun HomeScreen(
                     NavigationBarItem(
                         icon = { 
                             Icon(
-                                imageVector = screen.icon, 
+                                painter = screen.icon(),
                                 contentDescription = null
                             ) 
                         },
