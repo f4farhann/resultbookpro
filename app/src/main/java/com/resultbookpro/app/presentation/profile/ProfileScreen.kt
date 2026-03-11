@@ -1,5 +1,6 @@
 package com.resultbookpro.app.presentation.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,17 +10,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.resultbookpro.app.presentation.common.theme.PrimaryBlue
 import com.resultbookpro.app.presentation.common.theme.ResultBookProTheme
@@ -33,9 +32,96 @@ fun ProfileScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
-    val isSchoolLevel = state.studyLevel == "Nursery/KG" || state.studyLevel == "School (1–10)" || state.studyLevel == "Higher Secondary (11–12)"
-    val isCollegeLevel = state.studyLevel == "College / University"
-    val isAboveSchool10 = state.studyLevel == "Higher Secondary (11–12)" || state.studyLevel == "College / University"
+    var showStudyLevelDialog by remember { mutableStateOf(false) }
+    var showCourseTypeDialog by remember { mutableStateOf(false) }
+    var showClassSemesterDialog by remember { mutableStateOf(false) }
+    var showSchoolCollegeDialog by remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
+
+    val isStudyLevel = state.studyLevel == "Nursery/KG" || state.studyLevel == "School (1–10)" || state.studyLevel == "Higher Secondary (11–12)"
+    val isCollegeUniversity = state.studyLevel == "College / University"
+    val isAboveSchool10 = state.studyLevel == "Higher Secondary (11–12)" || isCollegeUniversity
+
+    if (showStudyLevelDialog) {
+        val options = listOf("Nursery/KG", "School (1–10)", "Higher Secondary (11–12)", "College / University")
+        SelectionDialog(
+            title = "Select Study Level",
+            options = options,
+            onDismiss = { showStudyLevelDialog = false },
+            onSelect = {
+                viewModel.updateStudyLevel(it)
+                showStudyLevelDialog = false
+            }
+        )
+    }
+
+    if (showCourseTypeDialog) {
+        val options = if (isCollegeUniversity) {
+            listOf("Undergraduate (UG)", "Postgraduate (PG)", "PhD")
+        } else {
+            listOf("Science", "Arts", "Commerce", "Diploma", "Other")
+        }
+        SelectionDialog(
+            title = "Select Course Type",
+            options = options,
+            onDismiss = { showCourseTypeDialog = false },
+            onSelect = {
+                viewModel.updateCourseType(it)
+                showCourseTypeDialog = false
+            }
+        )
+    }
+
+    if (showClassSemesterDialog) {
+        val options = when (state.studyLevel) {
+            "Nursery/KG" -> listOf("KG 1", "KG 2", "KG 3")
+            "School (1–10)" -> (1..10).map { "Class $it" }
+            "Higher Secondary (11–12)" -> listOf("Class 11", "Class 12")
+            "College / University" -> {
+                when (state.courseType) {
+                    "Undergraduate (UG)" -> (1..8).map { "Semester $it" }
+                    "Postgraduate (PG)" -> (1..4).map { "Semester $it" }
+                    "PhD" -> (1..16).map { "Semester $it" }
+                    else -> emptyList()
+                }
+            }
+            else -> emptyList()
+        }
+        SelectionDialog(
+            title = if (isStudyLevel) "Select Class" else "Select Semester",
+            options = options,
+            onDismiss = { showClassSemesterDialog = false },
+            onSelect = {
+                viewModel.updateClassOrSemester(it)
+                showClassSemesterDialog = false
+            }
+        )
+    }
+
+    if (showSchoolCollegeDialog) {
+        InputDialog(
+            title = if (isStudyLevel) "School Name" else "College Name",
+            initialValue = state.schoolCollegeName,
+            onDismiss = { showSchoolCollegeDialog = false },
+            onConfirm = {
+                viewModel.updateSchoolCollegeName(it)
+                showSchoolCollegeDialog = false
+            }
+        )
+    }
+
+    if (showAboutDialog) {
+        InputDialog(
+            title = "About",
+            initialValue = state.about,
+            onDismiss = { showAboutDialog = false },
+            onConfirm = {
+                viewModel.updateAbout(it)
+                showAboutDialog = false
+            },
+            singleLine = false
+        )
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -43,7 +129,6 @@ fun ProfileScreen(
             .background(Color(0xFFF5F7FA)),
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-        // Section 1: Header Info
         item {
             ProfileHeaderSection(
                 name = state.fullName,
@@ -52,62 +137,61 @@ fun ProfileScreen(
             )
         }
 
-        // Section 2: School/College Name
-        item {
-            val label = if (isSchoolLevel) "School Name" else "College / University Name"
-            ProfileInfoSection(
-                label = label,
-                value = state.schoolCollegeName,
-                icon = Icons.Default.School,
-                isMissing = viewModel.isFieldMissing(state.schoolCollegeName)
-            )
-        }
-
-        // Section 3: Study Level
         item {
             ProfileInfoSection(
                 label = "Study Level",
                 value = state.studyLevel,
                 icon = Icons.Default.Layers,
-                isMissing = viewModel.isFieldMissing(state.studyLevel)
+                isMissing = viewModel.isFieldMissing(state.studyLevel),
+                onClick = { showStudyLevelDialog = true }
             )
         }
 
-        // Section 4: Course Type (if above school 10+)
+        item {
+            val label = if (isStudyLevel) "School Name" else "College / University Name"
+            ProfileInfoSection(
+                label = label,
+                value = state.schoolCollegeName,
+                icon = Icons.Default.School,
+                isMissing = viewModel.isFieldMissing(state.schoolCollegeName),
+                onClick = { showSchoolCollegeDialog = true }
+            )
+        }
+
         if (isAboveSchool10) {
             item {
                 ProfileInfoSection(
                     label = "Course Type",
                     value = state.courseType ?: "",
                     icon = Icons.Default.Book,
-                    isMissing = viewModel.isFieldMissing(state.courseType)
+                    isMissing = viewModel.isFieldMissing(state.courseType),
+                    onClick = { showCourseTypeDialog = true }
                 )
             }
         }
 
-        // Section 5: Class or Semester
         item {
-            val label = if (isSchoolLevel) "Class" else "Semester"
+            val label = if (isStudyLevel) "Class" else "Semester"
             ProfileInfoSection(
                 label = label,
                 value = state.classOrSemester,
-                icon = Icons.Default.Class,
-                isMissing = viewModel.isFieldMissing(state.classOrSemester)
+                icon = Icons.Default.TableRows,
+                isMissing = viewModel.isFieldMissing(state.classOrSemester),
+                onClick = { showClassSemesterDialog = true }
             )
         }
 
-        // Section 6: About Section
         item {
             ProfileInfoSection(
                 label = "About",
                 value = state.about,
                 icon = Icons.Default.Info,
                 isMissing = viewModel.isFieldMissing(state.about),
-                isMultiLine = true
+                isMultiLine = true,
+                onClick = { showAboutDialog = true }
             )
         }
 
-        // Logout Button
         item {
             Spacer(modifier = Modifier.height(32.dp))
             Button(
@@ -116,13 +200,91 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.8f)),
-                shape = RoundedCornerShape(12.dp)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.8f)),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, Color.LightGray)
             ) {
-                Text("Logout", color = White, fontWeight = FontWeight.Bold)
+                Text("Logout", color = Red, fontWeight = FontWeight.Bold)
             }
         }
     }
+}
+
+@Composable
+fun SelectionDialog(
+    title: String,
+    options: List<String>,
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = White,
+        title = { Text(title, fontWeight = FontWeight.Bold) },
+        text = {
+            LazyColumn {
+                items(options.size) { index ->
+                    val option = options[index]
+                    Text(
+                        text = option,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(option) }
+                            .padding(16.dp),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Black
+                    )
+                    if (index < options.size - 1) {
+                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onDismiss() }) { 
+                Text("Cancel", color = PrimaryBlue) 
+            }
+        }
+    )
+}
+
+@Composable
+fun InputDialog(
+    title: String,
+    initialValue: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+    singleLine: Boolean = true
+) {
+    var text by remember { mutableStateOf(initialValue) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = White,
+        title = { Text(title, fontWeight = FontWeight.Bold) },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = singleLine,
+                maxLines = if (singleLine) 1 else 5,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = PrimaryBlue,
+                    unfocusedBorderColor = Color.LightGray
+                )
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(text) }) { 
+                Text("Save", color = PrimaryBlue) 
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { 
+                Text("Cancel", color = Color.Gray) 
+            }
+        }
+    )
 }
 
 @Composable
@@ -152,7 +314,7 @@ fun ProfileHeaderSection(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
-                        text = name.take(2).uppercase(),
+                        text = if (name.length >= 2) name.take(2).uppercase() else name.uppercase(),
                         style = MaterialTheme.typography.headlineSmall,
                         color = PrimaryBlue,
                         fontWeight = FontWeight.Bold
@@ -168,7 +330,8 @@ fun ProfileHeaderSection(
                 Text(
                     text = name,
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
                 Text(
                     text = email,
@@ -190,12 +353,14 @@ fun ProfileInfoSection(
     value: String,
     icon: ImageVector,
     isMissing: Boolean,
-    isMultiLine: Boolean = false
+    isMultiLine: Boolean = false,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -244,10 +409,18 @@ fun ProfileInfoSection(
                     Text(
                         text = value,
                         style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black // Ensuring text color is black for visibility
                     )
                 }
             }
+            
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = Color.LightGray,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }

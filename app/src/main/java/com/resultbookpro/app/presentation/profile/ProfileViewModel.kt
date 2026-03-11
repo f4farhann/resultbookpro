@@ -3,6 +3,7 @@ package com.resultbookpro.app.presentation.profile
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 data class ProfileState(
     val fullName: String = "Farhan Haider",
@@ -21,5 +22,36 @@ class ProfileViewModel : ViewModel() {
 
     fun isFieldMissing(value: String?): Boolean {
         return value.isNullOrBlank()
+    }
+
+    fun updateSchoolCollegeName(name: String) {
+        _state.update { it.copy(schoolCollegeName = name) }
+    }
+
+    fun updateStudyLevel(level: String) {
+        _state.update { 
+            it.copy(
+                studyLevel = level,
+                courseType = null,
+                classOrSemester = ""
+            ) 
+        }
+    }
+
+    fun updateCourseType(type: String) {
+        _state.update { 
+            it.copy(
+                courseType = type,
+                classOrSemester = "" // Reset semester/class when course type changes
+            ) 
+        }
+    }
+
+    fun updateClassOrSemester(value: String) {
+        _state.update { it.copy(classOrSemester = value) }
+    }
+
+    fun updateAbout(about: String) {
+        _state.update { it.copy(about = about) }
     }
 }
