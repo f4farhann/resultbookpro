@@ -9,11 +9,11 @@ data class ProfileState(
     val fullName: String = "Farhan Haider",
     val email: String = "farhanhaider@gmail.com",
     val profilePicUrl: String? = null,
-    val schoolCollegeName: String = "St. Xavier's High School",
-    val studyLevel: String = "Senior Secondary School (11–12)", 
-    val courseType: String? = "Science",
-    val classOrSemester: String = "Class 12",
-    val about: String = "I am a dedicated student pursuing Science stream with a keen interest in Mathematics and Physics."
+    val schoolCollegeName: String = "",
+    val studyLevel: String = "", 
+    val courseType: String? = null,
+    val classOrSemester: String = "",
+    val about: String = ""
 )
 
 class ProfileViewModel : ViewModel() {

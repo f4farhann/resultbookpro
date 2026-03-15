@@ -23,10 +23,12 @@ import com.resultbookpro.app.R
 import com.resultbookpro.app.presentation.analytics.AnalyticsScreen
 import com.resultbookpro.app.presentation.marks.list.MarksListScreen
 import com.resultbookpro.app.presentation.profile.ProfileScreen
+import com.resultbookpro.app.presentation.profile.ProfileViewModel
 import com.resultbookpro.app.presentation.upcoming.UpcomingScreen
 import com.resultbookpro.app.presentation.common.theme.PrimaryBlue
 import com.resultbookpro.app.presentation.common.theme.ResultBookProTheme
 import com.resultbookpro.app.presentation.common.theme.White
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 sealed class ScreenIcon(val route: String, val title: String) {
     @Composable
@@ -54,7 +56,8 @@ sealed class ScreenIcon(val route: String, val title: String) {
 @Composable
 fun HomeScreen(
     onEditProfile: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    profileViewModel: ProfileViewModel = viewModel()
 ) {
     val navController = rememberNavController()
     val items = listOf(ScreenIcon.Upcoming, ScreenIcon.Analytics, ScreenIcon.Marks, ScreenIcon.Profile)
@@ -126,7 +129,13 @@ fun HomeScreen(
             composable(ScreenIcon.Upcoming.route) { UpcomingScreen(onAddReminderClicked = {}) }
             composable(ScreenIcon.Analytics.route) { AnalyticsScreen() }
             composable(ScreenIcon.Marks.route) { MarksListScreen(onAddMark = {}, onMarkSwiped = {}) }
-            composable(ScreenIcon.Profile.route) { ProfileScreen(onEditProfile = onEditProfile, onLogout = onLogout) }
+            composable(ScreenIcon.Profile.route) { 
+                ProfileScreen(
+                    onEditProfile = onEditProfile, 
+                    onLogout = onLogout,
+                    viewModel = profileViewModel
+                ) 
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.resultbookpro.app.presentation.common.components.PrimaryButton
 import com.resultbookpro.app.presentation.common.components.TextFieldInput
 
@@ -17,10 +18,12 @@ import com.resultbookpro.app.presentation.common.components.TextFieldInput
 @Composable
 fun EditProfileScreen(
     onBack: () -> Unit,
-    onUpdate: () -> Unit
+    onUpdate: () -> Unit,
+    profileViewModel: ProfileViewModel = viewModel()
 ) {
-    var fullName by remember { mutableStateOf("Farhan Haider") }
-    var email by remember { mutableStateOf("farhanhaider@gmail.com") }
+    val state by profileViewModel.state.collectAsState()
+    var fullName by remember { mutableStateOf(state.fullName) }
+    var email by remember { mutableStateOf(state.email) }
 
     Scaffold(
         topBar = {
@@ -63,7 +66,10 @@ fun EditProfileScreen(
             
             PrimaryButton(
                 text = "Update Profile",
-                onClick = onUpdate,
+                onClick = {
+                    // In a real app, you would call profileViewModel.updateProfile(fullName, email)
+                    onUpdate()
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }

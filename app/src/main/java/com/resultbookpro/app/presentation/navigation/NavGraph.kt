@@ -14,14 +14,18 @@ import com.resultbookpro.app.presentation.auth.login.LoginViewModel
 import com.resultbookpro.app.presentation.auth.register.RegisterScreen
 import com.resultbookpro.app.presentation.auth.register.RegisterViewModel
 import com.resultbookpro.app.presentation.category.CategoryScreen
+import com.resultbookpro.app.presentation.category.CategoryViewModel
 import com.resultbookpro.app.presentation.home.HomeScreen
 import com.resultbookpro.app.presentation.profile.EditProfileScreen
+import com.resultbookpro.app.presentation.profile.ProfileViewModel
 import com.resultbookpro.app.presentation.profile.SetupProfileScreen
 import com.resultbookpro.app.presentation.profile.SetupProfileViewModel
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
+    // Using a shared ProfileViewModel scoped to the NavGraph/Activity
+    val profileViewModel: ProfileViewModel = viewModel()
 
     NavHost(
         navController = navController, 
@@ -53,7 +57,8 @@ fun NavGraph() {
     ) {
         composable(ScreenRoutes.Category) {
             CategoryScreen(
-                onCategorySelected = { _ ->
+                onCategorySelected = { studyLevel ->
+                    profileViewModel.updateStudyLevel(studyLevel)
                     navController.navigate(ScreenRoutes.Login)
                 }
             )
@@ -119,13 +124,15 @@ fun NavGraph() {
                     navController.navigate(ScreenRoutes.Login) {
                         popUpTo(0) { inclusive = true }
                     }
-                }
+                },
+                profileViewModel = profileViewModel
             )
         }
         composable(ScreenRoutes.EditProfile) {
             EditProfileScreen(
                 onBack = { navController.popBackStack() },
-                onUpdate = { navController.popBackStack() }
+                onUpdate = { navController.popBackStack() },
+                profileViewModel = profileViewModel
             )
         }
     }

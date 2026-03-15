@@ -47,11 +47,11 @@ fun MarksListScreen(
         ) {
             items(marks.size) { index ->
                 val state = rememberSwipeToDismissBoxState(
-                    confirmValueChange = { 
+                    confirmValueChange = {
                         if (it == SwipeToDismissBoxValue.EndToStart) {
-                            onMarkSwiped(index) 
+                            onMarkSwiped(index)
                         }
-                        true 
+                        true
                     }
                 )
 
