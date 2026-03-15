@@ -4,11 +4,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,31 +43,37 @@ fun CategoryScreen(
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
-    Scaffold {
-        paddingValues ->
-        Column(
+    Scaffold { paddingValues ->
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            contentPadding = PaddingValues(vertical = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Select Your Study Level",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(32.dp))
+            item {
+                Text(
+                    text = "Select Your Study Level",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
 
             val categories = listOf(
-                "Nursery/KG",
-                "School (1–10)",
-                "Higher Secondary (11–12)",
-                "College / University"
+                "PHD",
+                "Postgraduate (PG)",
+                "Undergraduate (UG)",
+                "Senior Secondary (11–12)",
+                "Secondary School (9–10)",
+                "Middle School (6–8)",
+                "Primary School (1–5)",
+                "Pre-Primary (Nursery / KG)"
             )
 
-            categories.forEach { category ->
+            items(categories) { category ->
                 CategoryCard(
                     text = category,
                     isSelected = selectedCategory == category,
@@ -78,7 +87,6 @@ fun CategoryScreen(
                         }
                     }
                 )
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

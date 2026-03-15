@@ -38,12 +38,21 @@ fun ProfileScreen(
     var showSchoolCollegeDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
 
-    val isStudyLevel = state.studyLevel == "Nursery/KG" || state.studyLevel == "School (1–10)" || state.studyLevel == "Higher Secondary (11–12)"
-    val isCollegeUniversity = state.studyLevel == "College / University"
-    val isAboveSchool10 = state.studyLevel == "Higher Secondary (11–12)" || isCollegeUniversity
+    val isCollegeLevel = state.studyLevel == "Postgraduate (PG)" || state.studyLevel == "Undergraduate (UG)" || state.studyLevel == "PHD"
+    val isSecondaryAbove = isCollegeLevel || state.studyLevel == "Senior Secondary School (11–12)"
+    val isSchoolLevel = !isCollegeLevel
 
     if (showStudyLevelDialog) {
-        val options = listOf("Nursery/KG", "School (1–10)", "Higher Secondary (11–12)", "College / University")
+        val options = listOf(
+            "PHD",
+            "Postgraduate (PG)",
+            "Undergraduate (UG)",
+            "Senior Secondary School (11–12)",
+            "Secondary School (9–10)",
+            "Middle School (6–8)",
+            "Primary School (1–5)",
+            "Pre-Primary School (Nursery / KG)"
+        )
         SelectionDialog(
             title = "Select Study Level",
             options = options,
@@ -56,10 +65,9 @@ fun ProfileScreen(
     }
 
     if (showCourseTypeDialog) {
-        val options = if (isCollegeUniversity) {
-            listOf("Undergraduate (UG)", "Postgraduate (PG)", "PhD")
-        } else {
-            listOf("Science", "Arts", "Commerce", "Diploma", "Other")
+        val options = when (state.studyLevel) {
+            "Senior Secondary School (11–12)" -> listOf("Science", "Arts", "Commerce", "Vocational", "Other")
+            else -> listOf("Regular", "Private", "Distance", "Other")
         }
         SelectionDialog(
             title = "Select Course Type",
@@ -74,21 +82,18 @@ fun ProfileScreen(
 
     if (showClassSemesterDialog) {
         val options = when (state.studyLevel) {
-            "Nursery/KG" -> listOf("KG 1", "KG 2", "KG 3")
-            "School (1–10)" -> (1..10).map { "Class $it" }
-            "Higher Secondary (11–12)" -> listOf("Class 11", "Class 12")
-            "College / University" -> {
-                when (state.courseType) {
-                    "Undergraduate (UG)" -> (1..8).map { "Semester $it" }
-                    "Postgraduate (PG)" -> (1..4).map { "Semester $it" }
-                    "PhD" -> (1..16).map { "Semester $it" }
-                    else -> emptyList()
-                }
-            }
+            "Pre-Primary School (Nursery / KG)" -> listOf("Nursery", "LKG", "UKG")
+            "Primary School (1–5)" -> (1..5).map { "Class $it" }
+            "Middle School (6–8)" -> (6..8).map { "Class $it" }
+            "Secondary School (9–10)" -> listOf("Class 9", "Class 10")
+            "Senior Secondary School (11–12)" -> listOf("Class 11", "Class 12")
+            "Undergraduate (UG)" -> (1..8).map { "Semester $it" }
+            "Postgraduate (PG)" -> (1..4).map { "Semester $it" }
+            "PHD" -> (1..12).map { "Semester $it" }
             else -> emptyList()
         }
         SelectionDialog(
-            title = if (isStudyLevel) "Select Class" else "Select Semester",
+            title = if (isSchoolLevel) "Select Class" else "Select Semester",
             options = options,
             onDismiss = { showClassSemesterDialog = false },
             onSelect = {
@@ -100,7 +105,7 @@ fun ProfileScreen(
 
     if (showSchoolCollegeDialog) {
         InputDialog(
-            title = if (isStudyLevel) "School Name" else "College Name",
+            title = if (isSchoolLevel) "School Name" else "College / University Name",
             initialValue = state.schoolCollegeName,
             onDismiss = { showSchoolCollegeDialog = false },
             onConfirm = {
@@ -148,7 +153,7 @@ fun ProfileScreen(
         }
 
         item {
-            val label = if (isStudyLevel) "School Name" else "College / University Name"
+            val label = if (isSchoolLevel) "School Name" else "College / University Name"
             ProfileInfoSection(
                 label = label,
                 value = state.schoolCollegeName,
@@ -158,7 +163,7 @@ fun ProfileScreen(
             )
         }
 
-        if (isAboveSchool10) {
+        if (isSecondaryAbove) {
             item {
                 ProfileInfoSection(
                     label = "Course Type",
@@ -171,7 +176,7 @@ fun ProfileScreen(
         }
 
         item {
-            val label = if (isStudyLevel) "Class" else "Semester"
+            val label = if (isSchoolLevel) "Class" else "Semester"
             ProfileInfoSection(
                 label = label,
                 value = state.classOrSemester,
