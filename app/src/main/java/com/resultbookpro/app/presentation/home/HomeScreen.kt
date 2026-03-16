@@ -7,6 +7,8 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -64,6 +66,8 @@ fun HomeScreen(
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry.value?.destination
     val currentRoute = currentDestination?.route
+
+    val profileState by profileViewModel.state.collectAsState()
 
     val topBarTitle = if (currentRoute == ScreenIcon.Profile.route) "My Account" else "ResultBookPro"
 
@@ -128,7 +132,11 @@ fun HomeScreen(
         ) {
             composable(ScreenIcon.Upcoming.route) { UpcomingScreen(onAddReminderClicked = {}) }
             composable(ScreenIcon.Analytics.route) { AnalyticsScreen() }
-            composable(ScreenIcon.Marks.route) { MarksListScreen(onAddMark = {}, onMarkSwiped = {}) }
+            composable(ScreenIcon.Marks.route) { 
+                MarksListScreen(
+                    studyLevelFromProfile = profileState.studyLevel,
+                ) 
+            }
             composable(ScreenIcon.Profile.route) { 
                 ProfileScreen(
                     onEditProfile = onEditProfile, 
