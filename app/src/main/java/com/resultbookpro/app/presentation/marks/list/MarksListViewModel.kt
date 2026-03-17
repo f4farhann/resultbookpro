@@ -22,7 +22,7 @@ data class AcademicYearData(
     val schoolName: String = "Enter School Name",
     val className: String,
     val board: String = "CBSE",
-    val totalMarks: String = "-",
+    val totalMarks: String = "90%",
     val status: StudyStatus = StudyStatus.PENDING,
     val type: AcademicType,
     val exams: List<ExamData> = emptyList()

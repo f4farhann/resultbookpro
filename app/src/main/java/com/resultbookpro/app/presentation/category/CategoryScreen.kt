@@ -101,7 +101,7 @@ fun CategoryCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp),
+            .height(70.dp),
         shape = RoundedCornerShape(26.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) PrimaryBlue else White,
