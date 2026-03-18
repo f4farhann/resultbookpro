@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,8 +45,7 @@ fun MarksListScreen(
     }
 
     Scaffold(
-        topBar = {
-        }
+        topBar = {}
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -67,8 +67,10 @@ fun MarksListScreen(
             ) {
                 state.sections.forEach { section ->
                     item(key = section.title) {
-                        var isExpanded by remember { mutableStateOf(true) }
-                        
+                        var isExpanded by rememberSaveable(section) {  // Use section.id as key
+                            mutableStateOf(true)
+                        }
+
                         SectionHeaderItem(
                             section = section,
                             isExpanded = isExpanded,
@@ -89,6 +91,7 @@ fun MarksListScreen(
                                 }
                             }
                         }
+
                     }
                 }
             }

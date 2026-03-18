@@ -45,7 +45,7 @@ class MarksListViewModel : ViewModel() {
 
     private val allSections = listOf(
         StudySection(
-            "PhD",
+            "PHD",
             listOf(
                 AcademicYearData("2024", className = "PhD 4th yr", type = AcademicType.HIGHER_ED, exams = listOf(ExamData("1 Sem"), ExamData("2 Sem"))),
                 AcademicYearData("2023", className = "PhD 3rd yr", type = AcademicType.HIGHER_ED, exams = listOf(ExamData("1 Sem"), ExamData("2 Sem"))),
@@ -73,7 +73,7 @@ class MarksListViewModel : ViewModel() {
             AcademicType.HIGHER_ED
         ),
         StudySection(
-            "Senior Secondary School (11 to 12)",
+            "Senior Secondary School (11–12)",
             listOf(
                 AcademicYearData("2014", className = "Class 12", type = AcademicType.SCHOOL, exams = listOf(ExamData("1st Term"), ExamData("2nd Term"), ExamData("3rd Term"))),
                 AcademicYearData("2013", className = "Class 11", type = AcademicType.SCHOOL, exams = listOf(ExamData("1st Term"), ExamData("2nd Term"), ExamData("3rd Term")))
@@ -81,7 +81,7 @@ class MarksListViewModel : ViewModel() {
             AcademicType.SCHOOL
         ),
         StudySection(
-            "Secondary School (9 to 10)",
+            "Secondary School (9–10)",
             listOf(
                 AcademicYearData("2012", className = "Class 10", type = AcademicType.SCHOOL, exams = listOf(ExamData("1st Term"), ExamData("2nd Term"), ExamData("3rd Term"))),
                 AcademicYearData("2011", className = "Class 9", type = AcademicType.SCHOOL, exams = listOf(ExamData("1st Term"), ExamData("2nd Term"), ExamData("3rd Term")))
@@ -89,7 +89,7 @@ class MarksListViewModel : ViewModel() {
             AcademicType.SCHOOL
         ),
         StudySection(
-            "Middle School (6 to 8)",
+            "Middle School (6–8)",
             listOf(
                 AcademicYearData("2010", className = "Class 8", type = AcademicType.SCHOOL, exams = listOf(ExamData("1st Term"), ExamData("2nd Term"), ExamData("3rd Term"))),
                 AcademicYearData("2009", className = "Class 7", type = AcademicType.SCHOOL, exams = listOf(ExamData("1st Term"), ExamData("2nd Term"), ExamData("3rd Term"))),
@@ -98,7 +98,7 @@ class MarksListViewModel : ViewModel() {
             AcademicType.SCHOOL
         ),
         StudySection(
-            "Primary School (1 to 5)",
+            "Primary School (1–5)",
             listOf(
                 AcademicYearData("2007", className = "Class 5", type = AcademicType.SCHOOL, exams = listOf(ExamData("1st Term"), ExamData("2nd Term"), ExamData("3rd Term"))),
                 AcademicYearData("2006", className = "Class 4", type = AcademicType.SCHOOL, exams = listOf(ExamData("1st Term"), ExamData("2nd Term"), ExamData("3rd Term"))),
@@ -109,7 +109,7 @@ class MarksListViewModel : ViewModel() {
             AcademicType.SCHOOL
         ),
         StudySection(
-            "Pre-Primary School (Nursery / kg)",
+            "Pre-Primary School (Nursery / KG)",
             listOf(
                 AcademicYearData("2002", className = "UKG", type = AcademicType.SCHOOL, exams = listOf(ExamData("1st Term"), ExamData("2nd Term"), ExamData("3rd Term"))),
                 AcademicYearData("2001", className = "LKG", type = AcademicType.SCHOOL, exams = listOf(ExamData("1st Term"), ExamData("2nd Term"), ExamData("3rd Term"))),
@@ -120,41 +120,54 @@ class MarksListViewModel : ViewModel() {
     )
 
     fun updateSections(selectedLevel: String) {
+        val normalizedQuery = normalize(selectedLevel)
+        
+        if (normalizedQuery.isEmpty()) {
+            _state.value = _state.value.copy(
+                selectedStudyLevel = selectedLevel,
+                sections = emptyList()
+            )
+            return
+        }
+
         val filtered = mutableListOf<StudySection>()
         var found = false
 
-        // selectedLevel might be "Undergraduate (UG)" or "UG" or "Class 10"
-        // We need a robust way to match. The requirement says:
-        // "if selected ug then from pre- primary school to ug study section it will show"
-        // Our allSections is PhD -> Pre-primary.
-
         for (section in allSections) {
-            if (section.title.contains(selectedLevel, ignoreCase = true) ||
-                selectedLevel.contains(section.title, ignoreCase = true) ||
-                section.levels.any { it.className.contains(selectedLevel, ignoreCase = true) }) {
-                found = true
+            if (!found) {
+                if (isMatch(section, normalizedQuery)) {
+                    found = true
+                }
             }
+            
             if (found) {
-                // To make it look like the photo, mark some as completed and one as ongoing
                 val updatedLevels = section.levels.mapIndexed { index, yearData ->
                     if (filtered.isEmpty() && index == 0) {
-                        yearData.copy(status = StudyStatus.ONGOING, schoolName = "Example University", totalMarks = "Goin on")
+                        yearData.copy(status = StudyStatus.ONGOING, schoolName = "Current Institution", totalMarks = "Ongoing")
                     } else {
-                        yearData.copy(status = StudyStatus.COMPLETED, schoolName = "ABC School", totalMarks = "85%")
+                        yearData.copy(status = StudyStatus.COMPLETED, schoolName = "Previous Institution", totalMarks = "85%")
                     }
                 }
                 filtered.add(section.copy(levels = updatedLevels))
             }
         }
 
-        // If not found (e.g. empty or unknown), maybe show all or just the bottom one.
-        // But per requirement, we should show from that level downwards.
-        // If "found" never became true, it means the selectedLevel is above our PhD?
-        // Or it's something not in our list.
-
+        // If nothing found, it means the selected level is not in our data yet,
+        // or there was a mismatch. We'll show an empty list instead of defaulting to PhD.
         _state.value = _state.value.copy(
             selectedStudyLevel = selectedLevel,
-            sections = filtered.ifEmpty { allSections } // Fallback
+            sections = filtered
         )
+    }
+
+    private fun normalize(s: String): String {
+        return s.lowercase().filter { it.isLetterOrDigit() }
+    }
+
+    private fun isMatch(section: StudySection, normalizedQuery: String): Boolean {
+        val normalizedTitle = normalize(section.title)
+        return normalizedTitle.contains(normalizedQuery) || 
+               normalizedQuery.contains(normalizedTitle) ||
+               section.levels.any { normalize(it.className).contains(normalizedQuery) }
     }
 }

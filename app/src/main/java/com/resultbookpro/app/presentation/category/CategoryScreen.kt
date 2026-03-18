@@ -66,11 +66,11 @@ fun CategoryScreen(
                 "PHD",
                 "Postgraduate (PG)",
                 "Undergraduate (UG)",
-                "Senior Secondary (11–12)",
+                "Senior Secondary School (11–12)",
                 "Secondary School (9–10)",
                 "Middle School (6–8)",
                 "Primary School (1–5)",
-                "Pre-Primary (Nursery / KG)"
+                "Pre-Primary School (Nursery / KG)"
             )
 
             items(categories) { category ->
