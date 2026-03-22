@@ -130,7 +130,9 @@ fun HomeScreen(
             startDestination = ScreenIcon.Upcoming.route,
             Modifier.padding(innerPadding)
         ) {
-            composable(ScreenIcon.Upcoming.route) { UpcomingScreen(onAddReminderClicked = {}) }
+            composable(ScreenIcon.Upcoming.route) { 
+                UpcomingScreen()
+            }
             composable(ScreenIcon.Analytics.route) { AnalyticsScreen() }
             composable(ScreenIcon.Marks.route) { 
                 MarksListScreen(
