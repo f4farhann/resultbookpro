@@ -142,7 +142,7 @@ fun EventItem(event: UpcomingEvent) {
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
         )
     ) {
         Row(
@@ -154,7 +154,7 @@ fun EventItem(event: UpcomingEvent) {
             Surface(
                 modifier = Modifier.size(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(text = event.emoji, fontSize = 28.sp)
@@ -198,14 +198,12 @@ fun EventItem(event: UpcomingEvent) {
                         Icons.Default.Notifications,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.secondary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = event.time,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
             }
