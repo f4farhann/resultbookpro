@@ -63,7 +63,9 @@ fun UpcomingScreen(
                 onClick = { showAddDialog = true },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                // Add bottom padding to lift FAB above the floating bottom navigation bar
+                modifier = Modifier.padding(bottom = 80.dp)
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Reminder")
             }

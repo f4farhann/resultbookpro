@@ -207,7 +207,7 @@ fun HomeScreen(
                                 }
                                 Text(
                                     text = screen.title,
-                                    fontSize = 11.sp,
+                                    fontSize = 12.sp,
                                     fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.SemiBold,
                                     color = if (selected) PrimaryBlue else Color.Black,
                                     modifier = Modifier.offset(y = 0.dp)
