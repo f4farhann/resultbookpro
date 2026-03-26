@@ -10,14 +10,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,10 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.resultbookpro.app.presentation.common.theme.PrimaryBlue
 import com.resultbookpro.app.presentation.common.theme.ResultBookProTheme
 
 @Composable
@@ -63,11 +66,11 @@ fun MarksListScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 0.dp, bottom = 0.dp)
+                contentPadding = PaddingValues(top = 0.dp, bottom = 100.dp)
             ) {
                 state.sections.forEach { section ->
                     item(key = section.title) {
-                        var isExpanded by rememberSaveable(section) {  // Use section.id as key
+                        var isExpanded by rememberSaveable(section) {
                             mutableStateOf(true)
                         }
 
@@ -114,10 +117,10 @@ fun SectionHeaderItem(
         // 1st circle: Blue for section always
         Box(
             modifier = Modifier
-                .padding(start = 14.dp) // Centers on the 24dp line (24 + 4/2 - 20/2) approx
+                .padding(start = 14.dp)
                 .size(24.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF2196F3)),
+                .background(PrimaryBlue),
             contentAlignment = Alignment.Center
         ) {
             Box(
@@ -136,7 +139,7 @@ fun SectionHeaderItem(
                 .padding(end = 16.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(6.dp),
-            color = Color(0xFF2196F3),
+            color = PrimaryBlue,
         ) {
             Row(
                 modifier = Modifier.height(IntrinsicSize.Min),
@@ -185,11 +188,11 @@ fun AcademicYearItem(
 
         Box(
             modifier = Modifier
-                .padding(start = 16.dp, top = 8.dp)
+                .padding(start = 16.dp, top = 12.dp)
                 .size(20.dp)
                 .clip(CircleShape)
                 .background(circleColor)
-                .border(1.dp, Color.Black, CircleShape),
+                .border(1.dp, Color.Black.copy(alpha = 0.2f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             if (icon != null) {
@@ -204,119 +207,168 @@ fun AcademicYearItem(
 
         Spacer(modifier = Modifier.width(20.dp))
 
-        Column(
+        // Redesigned Card to match the image
+        Card(
             modifier = Modifier
                 .padding(end = 16.dp)
-                .weight(1f)
+                .weight(1f),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
         ) {
-            // 1st box: Year
-            Surface(
-                shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp),
-                color = Color.White,
-                border = BorderStroke(1.dp, Color.Black),
-                modifier = Modifier.width(100.dp)
-            ) {
-                Text(
-                    text = yearData.year,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    color = Color.Black
-                )
-            }
-
-            // 2nd box: School Name | Edit icon
-            Surface(
-                color = Color.White,
-                border = BorderStroke(1.dp, Color.Black),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically
+            Column {
+                // Header with Year
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(PrimaryBlue.copy(alpha = 0.15f))
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text(
-                        text = yearData.schoolName,
-                        modifier = Modifier
-                            .weight(3f)
-                            .padding(8.dp),
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp,
-                        color = Color.Black
-                    )
-                    VerticalDivider(color = Color.Black)
-                    IconButton(onClick = onEditClick, modifier = Modifier.size(36.dp)) {
-                        Icon(
-                            Icons.Default.Edit,
-                            contentDescription = "Edit",
-                            modifier = Modifier.size(18.dp),
-                            tint = Color.Black
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = yearData.year,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
                         )
+
+                        IconButton(onClick = onEditClick, modifier = Modifier.size(24.dp)) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit",
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.Gray
+                            )
+                        }
                     }
                 }
-            }
 
-            // 3rd box: Class | Board | Mark
-            Surface(
-                color = Color.White,
-                border = BorderStroke(1.dp, Color.Black),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = yearData.className,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp),
-                        fontSize = 13.sp,
-                        color = Color.Black
-                    )
-                    VerticalDivider(color = Color.Black)
-                    Text(
-                        text = yearData.board,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp),
-                        fontSize = 13.sp,
-                        color = Color.Black
-                    )
-                    VerticalDivider(color = Color.Black)
-                    Text(
-                        text = yearData.totalMarks,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp),
-                        fontSize = 13.sp,
-                        color = Color.Black
-                    )
-                }
-            }
-
-            // 4th box: Term wise or Semester wise marks
-            Surface(
-                shape = RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp),
-                color = Color.White,
-                border = BorderStroke(1.dp, Color.Black),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.height(IntrinsicSize.Min),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    yearData.exams.forEachIndexed { index, exam ->
+                Column(modifier = Modifier.padding(16.dp)) {
+                    // Institution and Edit Icon
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text(
-                            text = exam.name,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(8.dp),
-                            fontSize = 12.sp,
-                            color = Color.Gray
+                            text = yearData.schoolName,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
                         )
-                        if (index < yearData.exams.size - 1) {
-                            VerticalDivider(color = Color.Black)
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        color = Color.LightGray
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+
+                    // Details Row: Class | Board | Mark
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        // Class
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.Gray
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = yearData.className,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Black
+                            )
+                        }
+
+                        VerticalDivider(
+                            modifier = Modifier
+                                .height(16.dp)
+                                .padding(horizontal = 8.dp),
+                            color = Color.LightGray
+                        )
+
+                        // Board
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1.4f)) {
+                            Icon(
+                                imageVector = Icons.Default.Description,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.Gray
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = yearData.board,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Black
+                            )
+                        }
+
+                        VerticalDivider(
+                            modifier = Modifier
+                                .height(16.dp)
+                                .padding(horizontal = 8.dp),
+                            color = Color.LightGray
+                        )
+
+                        // Marks
+                        Text(
+                            text = yearData.totalMarks,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            modifier = Modifier.weight(0.6f),
+                            textAlign = TextAlign.End
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Exam Pills (1st Term, 2nd Term, etc.)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        yearData.exams.forEachIndexed { index, exam ->
+                            val pillColor = when (index) {
+                                0 -> Color(0xFFE3F2FD) // Light Blue for 1st Term
+                                1 -> Color(0xFFE8F5E9) // Light Green for 2nd Term
+                                2 -> Color(0xFFFFEBEE) // Light Red for 3rd Term
+                                else -> Color.LightGray.copy(alpha = 0.3f)
+                            }
+
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = pillColor,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = exam.name,
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black.copy(alpha = 0.7f),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
                 }
