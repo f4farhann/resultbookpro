@@ -40,6 +40,7 @@ import com.resultbookpro.app.presentation.common.theme.ResultBookProTheme
 fun MarksListScreen(
     studyLevelFromProfile: String = "Undergraduate (UG)",
     viewModel: MarksListViewModel = viewModel(),
+    onEditRecord: (String) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -89,7 +90,7 @@ fun MarksListScreen(
                                 section.levels.forEach { yearData ->
                                     AcademicYearItem(
                                         yearData = yearData,
-                                        onEditClick = { }
+                                        onEditClick = { onEditRecord(yearData.year) }
                                     )
                                 }
                             }
