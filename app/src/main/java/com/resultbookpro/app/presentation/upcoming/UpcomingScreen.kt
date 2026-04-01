@@ -226,12 +226,14 @@ fun AddEventDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = Color.White,
         shape = RoundedCornerShape(28.dp),
         title = { 
             Text(
                 text = "New Reminder 🔔", 
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
             ) 
         },
         text = {

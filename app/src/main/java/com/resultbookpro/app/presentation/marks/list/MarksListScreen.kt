@@ -243,7 +243,7 @@ fun AcademicYearItem(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit",
                                 modifier = Modifier.size(16.dp),
-                                tint = Color.Gray
+                                tint = Color.Black
                             )
                         }
                     }
