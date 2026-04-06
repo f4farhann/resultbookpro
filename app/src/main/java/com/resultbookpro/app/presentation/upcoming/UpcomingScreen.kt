@@ -312,7 +312,7 @@ fun EmptyState(message: String) {
         Surface(
             modifier = Modifier.size(120.dp),
             shape = RoundedCornerShape(40.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(

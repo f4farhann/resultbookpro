@@ -241,6 +241,7 @@ fun EditAcademicRecordScreen(
         if (showImageSourceDialog) {
             AlertDialog(
                 onDismissRequest = { showImageSourceDialog = false },
+                containerColor = Color.White,
                 title = { Text("Choose Image Source") },
                 text = { Text("Select how you want to add your mark sheet.") },
                 confirmButton = {
