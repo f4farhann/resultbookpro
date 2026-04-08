@@ -83,17 +83,22 @@ fun HomeScreen(
 
     val profileState by profileViewModel.state.collectAsState()
 
-    val topBarTitle = if (currentRoute == ScreenIcon.Profile.route) "My Account" else "ResultBookPro"
+    val topBarTitle = when (currentRoute){
+        ScreenIcon.Analytics.route -> "Analytics"
+        ScreenIcon.Marks.route -> "Marks"
+        ScreenIcon.Profile.route -> "Marks"
+        else -> "ResultBookPro"
+    }
 
     Scaffold(
         topBar = {
             if (currentRoute?.startsWith("edit_record") != true) {
                 TopAppBar(
-                    title = { 
+                    title = {
                         Text(
                             text = topBarTitle,
                             fontWeight = FontWeight.Bold
-                        ) 
+                        )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = PrimaryBlue,
