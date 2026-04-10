@@ -235,7 +235,7 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = if (currentRoute?.startsWith("edit_record") == true) 0.dp else innerPadding.calculateTopPadding())
+                .padding(top = if (currentRoute?.startsWith("edit_record") == true) 0.dp else 100.dp)
         ) {
             NavHost(
                 navController = navController,
