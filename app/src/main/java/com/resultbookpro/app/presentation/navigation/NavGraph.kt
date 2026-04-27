@@ -14,8 +14,9 @@ import com.resultbookpro.app.presentation.auth.login.LoginViewModel
 import com.resultbookpro.app.presentation.auth.register.RegisterScreen
 import com.resultbookpro.app.presentation.auth.register.RegisterViewModel
 import com.resultbookpro.app.presentation.category.CategoryScreen
-import com.resultbookpro.app.presentation.category.CategoryViewModel
 import com.resultbookpro.app.presentation.home.HomeScreen
+import com.resultbookpro.app.presentation.marks.edit.EditAcademicRecordScreen
+import com.resultbookpro.app.presentation.marks.edit.EditAcademicRecordViewModel
 import com.resultbookpro.app.presentation.profile.EditProfileScreen
 import com.resultbookpro.app.presentation.profile.ProfileViewModel
 import com.resultbookpro.app.presentation.profile.SetupProfileScreen
@@ -26,6 +27,7 @@ fun NavGraph() {
     val navController = rememberNavController()
     // Using a shared ProfileViewModel scoped to the NavGraph/Activity
     val profileViewModel: ProfileViewModel = viewModel()
+    val editAcademicRecordViewModel: EditAcademicRecordViewModel = viewModel()
 
     NavHost(
         navController = navController, 
@@ -120,12 +122,14 @@ fun NavGraph() {
         composable(ScreenRoutes.Home) {
             HomeScreen(
                 onEditProfile = { navController.navigate(ScreenRoutes.EditProfile) },
+                onEditRecord = { navController.navigate(ScreenRoutes.EditAcademicRecord) },
                 onLogout = {
                     navController.navigate(ScreenRoutes.Login) {
                         popUpTo(0) { inclusive = true }
                     }
                 },
-                profileViewModel = profileViewModel
+                profileViewModel = profileViewModel,
+                editAcademicRecordViewModel = editAcademicRecordViewModel
             )
         }
         composable(ScreenRoutes.EditProfile) {
@@ -134,6 +138,13 @@ fun NavGraph() {
                 onUpdate = { navController.popBackStack() },
                 profileViewModel = profileViewModel
             )
+        }
+        composable(ScreenRoutes.EditAcademicRecord) {
+            EditAcademicRecordScreen(
+                onBack = { navController.popBackStack() },
+                onSave = { navController.popBackStack() },
+                editAcademicRecordViewModel = editAcademicRecordViewModel
+                )
         }
     }
 }

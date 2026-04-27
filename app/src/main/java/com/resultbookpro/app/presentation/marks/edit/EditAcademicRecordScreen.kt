@@ -10,7 +10,6 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +24,7 @@ import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,14 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.resultbookpro.app.presentation.common.components.TextFieldInput
 import com.resultbookpro.app.presentation.common.theme.PrimaryBlue
-import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileOutputStream
 
 data class Subject(
     val name: String = "",
@@ -60,31 +59,29 @@ data class ExamEditState(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditAcademicRecordScreen(
-    year: String,
-    initialSchoolName: String,
-    initialClassName: String,
-    initialBoard: String,
-    initialExams: List<String>,
     onBack: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    editAcademicRecordViewModel: EditAcademicRecordViewModel = viewModel()
 ) {
-    var schoolName by remember { mutableStateOf(initialSchoolName) }
-    var className by remember { mutableStateOf(initialClassName) }
-    var board by remember { mutableStateOf(initialBoard) }
-    var academicYear by remember { mutableStateOf(year) }
+    val state by editAcademicRecordViewModel.state.collectAsState()
+
+    var schoolName by remember { mutableStateOf(state.initialSchoolName) }
+    var className by remember { mutableStateOf(state.initialClassName) }
+    var board by remember { mutableStateOf(state.initialBoard) }
+    var academicYear by remember { mutableStateOf(state.year) }
 
     var exams by remember { 
-        mutableStateOf(initialExams.map { ExamEditState(it) }) 
+        mutableStateOf(state.initialExams.map { ExamEditState(it) })
     }
     var selectedExamIndex by remember { mutableStateOf(0) }
     
     val currentExam = if (exams.isNotEmpty()) exams[selectedExamIndex] else ExamEditState("Default")
 
     val hasChanges = remember(schoolName, className, board, academicYear, exams) {
-        schoolName != initialSchoolName || 
-        className != initialClassName || 
-        board != initialBoard || 
-        academicYear != year ||
+        schoolName != state.initialSchoolName ||
+        className != state.initialClassName ||
+        board != state.initialBoard ||
+        academicYear != state.year ||
         exams.any { it.subjects.any { sub -> sub.name.isNotEmpty() || sub.obtainedMarks.isNotEmpty() } }
     }
 
@@ -123,7 +120,7 @@ fun EditAcademicRecordScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit academic record - $year", fontWeight = FontWeight.Bold) },
+                title = { Text("Edit academic record - ${state.year}", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { if (hasChanges) showExitDialog = true else onBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")

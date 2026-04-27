@@ -35,12 +35,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.resultbookpro.app.presentation.common.theme.PrimaryBlue
 import com.resultbookpro.app.presentation.common.theme.ResultBookProTheme
+import com.resultbookpro.app.presentation.marks.edit.EditAcademicRecordViewModel
 
 @Composable
 fun MarksListScreen(
     studyLevelFromProfile: String = "Undergraduate (UG)",
+    onEditRecord: () -> Unit,
     viewModel: MarksListViewModel = viewModel(),
-    onEditRecord: (String) -> Unit = {}
+    recordViewModel: EditAcademicRecordViewModel = viewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -90,7 +92,11 @@ fun MarksListScreen(
                                 section.levels.forEach { yearData ->
                                     AcademicYearItem(
                                         yearData = yearData,
-                                        onEditClick = { onEditRecord(yearData.year) }
+                                        onEditClick = {
+                                            // vm yearData.year
+                                          //  recordViewModel
+                                            onEditRecord()
+                                        }
                                     )
                                 }
                             }
@@ -382,6 +388,6 @@ fun AcademicYearItem(
 @Composable
 fun MarksListScreenPreview() {
     ResultBookProTheme {
-        MarksListScreen()
+//        MarksListScreen()
     }
 }

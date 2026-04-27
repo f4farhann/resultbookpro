@@ -45,6 +45,7 @@ import com.resultbookpro.app.presentation.common.theme.PrimaryBlue
 import com.resultbookpro.app.presentation.common.theme.ResultBookProTheme
 import com.resultbookpro.app.presentation.common.theme.White
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.resultbookpro.app.presentation.marks.edit.EditAcademicRecordViewModel
 
 sealed class ScreenIcon(val route: String, val title: String) {
     @Composable
@@ -72,8 +73,10 @@ sealed class ScreenIcon(val route: String, val title: String) {
 @Composable
 fun HomeScreen(
     onEditProfile: () -> Unit,
+    onEditRecord: () -> Unit,
     onLogout: () -> Unit,
-    profileViewModel: ProfileViewModel = viewModel()
+    profileViewModel: ProfileViewModel = viewModel(),
+    editAcademicRecordViewModel: EditAcademicRecordViewModel = viewModel()
 ) {
     val navController = rememberNavController()
     val items = listOf(ScreenIcon.Upcoming, ScreenIcon.Analytics, ScreenIcon.Marks, ScreenIcon.Profile)
@@ -82,11 +85,12 @@ fun HomeScreen(
     val currentRoute = currentDestination?.route
 
     val profileState by profileViewModel.state.collectAsState()
+    val RecordeState by editAcademicRecordViewModel.state.collectAsState()
 
     val topBarTitle = when (currentRoute){
         ScreenIcon.Analytics.route -> "Analytics"
         ScreenIcon.Marks.route -> "Marks"
-        ScreenIcon.Profile.route -> "Marks"
+        ScreenIcon.Profile.route -> "Profile"
         else -> "ResultBookPro"
     }
 
@@ -105,7 +109,7 @@ fun HomeScreen(
                         titleContentColor = White,
                         actionIconContentColor = White,
                         navigationIconContentColor = White
-                    )
+                    ),
                 )
             }
         },
@@ -235,7 +239,7 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = if (currentRoute?.startsWith("edit_record") == true) 0.dp else 100.dp)
+                .padding(top = if (currentRoute?.startsWith("edit_record") == true) 0.dp else innerPadding.calculateTopPadding())
         ) {
             NavHost(
                 navController = navController,
@@ -275,9 +279,8 @@ fun HomeScreen(
                 composable(ScreenIcon.Marks.route) { 
                     MarksListScreen(
                         studyLevelFromProfile = profileState.studyLevel,
-                        onEditRecord = { year ->
-                            navController.navigate("edit_record/$year")
-                        }
+                        onEditRecord = onEditRecord,
+
                     ) 
                 }
                 composable(ScreenIcon.Profile.route) { 
@@ -287,21 +290,17 @@ fun HomeScreen(
                         viewModel = profileViewModel
                     ) 
                 }
-                composable(
-                    route = "edit_record/{year}",
-                    arguments = listOf(navArgument("year") { type = NavType.StringType })
-                ) { backStackEntry ->
-                    val year = backStackEntry.arguments?.getString("year") ?: ""
-                    EditAcademicRecordScreen(
-                        year = year,
-                        initialSchoolName = "Previous Institution",
-                        initialClassName = "UKG",
-                        initialBoard = "CBSE",
-                        initialExams = listOf("1st Term", "2nd Term", "3rd Term"),
-                        onBack = { navController.popBackStack() },
-                        onSave = { navController.popBackStack() }
-                    )
-                }
+//                composable(
+//                    route = "edit_record/{year}",
+//                    arguments = listOf(navArgument("year") { type = NavType.StringType })
+//                ) { backStackEntry ->
+//                    val year = backStackEntry.arguments?.getString("year") ?: ""
+//                    EditAcademicRecordScreen(
+//                        onBack = { navController.popBackStack() },
+//                        onSave = { navController.popBackStack() },
+//                        editAcademicRecordViewModel = editAcademicRecordViewModel
+//                    )
+//                }
             }
         }
     }
@@ -311,6 +310,6 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     ResultBookProTheme {
-        HomeScreen(onEditProfile = {}, onLogout = {})
+        HomeScreen(onEditProfile = {}, onEditRecord = {}, onLogout = {})
     }
 }
