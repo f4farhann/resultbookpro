@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -46,6 +48,7 @@ import com.resultbookpro.app.presentation.common.theme.ResultBookProTheme
 import com.resultbookpro.app.presentation.common.theme.White
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.resultbookpro.app.presentation.marks.edit.EditAcademicRecordViewModel
+import kotlinx.coroutines.launch
 
 sealed class ScreenIcon(val route: String, val title: String) {
     @Composable
@@ -80,6 +83,10 @@ fun HomeScreen(
 ) {
     val navController = rememberNavController()
     val items = listOf(ScreenIcon.Upcoming, ScreenIcon.Analytics, ScreenIcon.Marks, ScreenIcon.Profile)
+    
+    val pagerState = rememberPagerState(pageCount = { items.size })
+    val coroutineScope = rememberCoroutineScope()
+
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry.value?.destination
     val currentRoute = currentDestination?.route
@@ -87,11 +94,20 @@ fun HomeScreen(
     val profileState by profileViewModel.state.collectAsState()
     val RecordeState by editAcademicRecordViewModel.state.collectAsState()
 
-    val topBarTitle = when (currentRoute){
-        ScreenIcon.Analytics.route -> "Analytics"
-        ScreenIcon.Marks.route -> "Marks"
-        ScreenIcon.Profile.route -> "Profile"
-        else -> "ResultBookPro"
+    val topBarTitle = if (currentRoute == "home") {
+        when (items[pagerState.currentPage]) {
+            ScreenIcon.Analytics -> "Analytics"
+            ScreenIcon.Marks -> "Marks"
+            ScreenIcon.Profile -> "Profile"
+            else -> "ResultBookPro"
+        }
+    } else {
+        when (currentRoute) {
+            ScreenIcon.Analytics.route -> "Analytics"
+            ScreenIcon.Marks.route -> "Marks"
+            ScreenIcon.Profile.route -> "Profile"
+            else -> "ResultBookPro"
+        }
     }
 
     Scaffold(
@@ -136,8 +152,12 @@ fun HomeScreen(
                             horizontalArrangement = Arrangement.SpaceAround,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            items.forEach { screen ->
-                                val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                            items.forEachIndexed { index, screen ->
+                                val selected = if (currentRoute == "home") {
+                                    pagerState.currentPage == index
+                                } else {
+                                    currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                                }
                                 
                                 val animatedScale by animateFloatAsState(
                                     targetValue = if (selected) 1.15f else 1.0f,
@@ -168,14 +188,17 @@ fun HomeScreen(
                                             interactionSource = remember { MutableInteractionSource() },
                                             indication = null
                                         ) {
-                                            if (currentRoute != screen.route) {
-                                                navController.navigate(screen.route) {
+                                            if (currentRoute != "home") {
+                                                navController.navigate("home") {
                                                     popUpTo(navController.graph.findStartDestination().id) {
                                                         saveState = true
                                                     }
                                                     launchSingleTop = true
                                                     restoreState = true
                                                 }
+                                            }
+                                            coroutineScope.launch {
+                                                pagerState.animateScrollToPage(index)
                                             }
                                         },
                                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -243,52 +266,39 @@ fun HomeScreen(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = ScreenIcon.Upcoming.route,
+                startDestination = "home",
                 modifier = Modifier.fillMaxSize(),
                 enterTransition = { 
-                    val initialIndex = items.indexOfFirst { it.route == initialState.destination.route }
-                    val targetIndex = items.indexOfFirst { it.route == targetState.destination.route }
-                    
-                    if (targetIndex != -1 && initialIndex != -1) {
-                        if (targetIndex > initialIndex) {
-                            slideInHorizontally(initialOffsetX = { it }) + fadeIn()
-                        } else {
-                            slideInHorizontally(initialOffsetX = { -it }) + fadeIn()
-                        }
-                    } else {
-                        fadeIn()
-                    }
+                    fadeIn(animationSpec = tween(300))
                 },
                 exitTransition = { 
-                    val initialIndex = items.indexOfFirst { it.route == initialState.destination.route }
-                    val targetIndex = items.indexOfFirst { it.route == targetState.destination.route }
-                    
-                    if (targetIndex != -1 && initialIndex != -1) {
-                        if (targetIndex > initialIndex) {
-                            slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
-                        } else {
-                            slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
-                        }
-                    } else {
-                        fadeOut()
-                    }
+                    fadeOut(animationSpec = tween(300))
                 }
             ) {
-                composable(ScreenIcon.Upcoming.route) { UpcomingScreen() }
-                composable(ScreenIcon.Analytics.route) { AnalyticsScreen() }
-                composable(ScreenIcon.Marks.route) { 
-                    MarksListScreen(
-                        studyLevelFromProfile = profileState.studyLevel,
-                        onEditRecord = onEditRecord,
-
-                    ) 
-                }
-                composable(ScreenIcon.Profile.route) { 
-                    ProfileScreen(
-                        onEditProfile = onEditProfile, 
-                        onLogout = onLogout,
-                        viewModel = profileViewModel
-                    ) 
+                composable("home") {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize(),
+                        beyondViewportPageCount = 3
+                    ) { page ->
+                        when (items[page]) {
+                            ScreenIcon.Upcoming -> UpcomingScreen()
+                            ScreenIcon.Analytics -> AnalyticsScreen()
+                            ScreenIcon.Marks -> {
+                                MarksListScreen(
+                                    studyLevelFromProfile = profileState.studyLevel,
+                                    onEditRecord = onEditRecord,
+                                )
+                            }
+                            ScreenIcon.Profile -> {
+                                ProfileScreen(
+                                    onEditProfile = onEditProfile,
+                                    onLogout = onLogout,
+                                    viewModel = profileViewModel
+                                )
+                            }
+                        }
+                    }
                 }
 //                composable(
 //                    route = "edit_record/{year}",
