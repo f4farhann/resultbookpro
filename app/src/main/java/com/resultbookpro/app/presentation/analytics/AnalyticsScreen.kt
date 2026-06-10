@@ -33,7 +33,6 @@ fun AnalyticsScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .padding(16.dp)
         ) {
             Text(

@@ -30,15 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.resultbookpro.app.R
 import com.resultbookpro.app.presentation.analytics.AnalyticsScreen
-import com.resultbookpro.app.presentation.marks.edit.EditAcademicRecordScreen
 import com.resultbookpro.app.presentation.marks.list.MarksListScreen
 import com.resultbookpro.app.presentation.profile.ProfileScreen
 import com.resultbookpro.app.presentation.profile.ProfileViewModel

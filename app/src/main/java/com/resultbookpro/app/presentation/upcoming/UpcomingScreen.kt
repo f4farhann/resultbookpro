@@ -75,7 +75,6 @@ fun UpcomingScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
         ) {
             when (val state = uiState) {
                 is UpcomingUiState.Loading -> {

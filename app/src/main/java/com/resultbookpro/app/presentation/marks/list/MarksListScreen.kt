@@ -56,7 +56,6 @@ fun MarksListScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
         ) {
             // Straight square vertical line on the left
             Box(
