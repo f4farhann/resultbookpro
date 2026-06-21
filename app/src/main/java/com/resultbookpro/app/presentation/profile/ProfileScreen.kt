@@ -1,5 +1,6 @@
 package com.resultbookpro.app.presentation.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,6 +33,7 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
 
     var showStudyLevelDialog by remember { mutableStateOf(false) }
     var showCourseTypeDialog by remember { mutableStateOf(false) }
@@ -200,7 +203,10 @@ fun ProfileScreen(
         item {
             Spacer(modifier = Modifier.height(32.dp))
             Button(
-                onClick = onLogout,
+                onClick = {
+                    Toast.makeText(context, "Logged out successfully", Toast.LENGTH_SHORT).show()
+                    onLogout()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
