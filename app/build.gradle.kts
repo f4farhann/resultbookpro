@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.resultbookpro.app"
+    namespace = "com.scortrax.app"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.resultbookpro.app"
+        applicationId = "com.scortrax.app"
         minSdk = 27
         targetSdk = 35
         versionCode = 1
